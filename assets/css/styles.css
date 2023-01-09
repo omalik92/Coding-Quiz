@@ -26,10 +26,6 @@ button {
   transition: background-color 0.1s;
 }
 
-button:hover {
-  background-color: #8570a5;
-}
-
 .choices button {
   display: block;
 }
