@@ -2,39 +2,40 @@ const startScreen = document.querySelector("#start-screen");
 const questionsScreen = document.querySelector("#questions");
 const choices = document.querySelector("#choices");
 const startButton = document.querySelector("#start");
+const endScreen = document.querySelector("#end-screen");
 const timeEl = document.querySelector("#time");
 
 //set starting time interval here
-time = 76;
-//function to set starting time
+var time = 76;
+//function to set timer
 setTime = (i) =>
   (timerInterval = setInterval(() => {
     time--;
     timeEl.textContent = time;
+    //if time runs out or last question
+    if (time === 0 || questionNumber === 4) {
+      //render end page when timer reaches end
+      renderEndPage();
 
-    if (time === 0) {
+      //Uh ohmessage you ran out of time
       clearInterval(timerInterval);
     }
+    //ADD FUNCTION HERE TO DISPLAY END PAGE
   }, 1000));
 
-//function to render questions while time is not equal to zero
-//render question to page
-//for above render 4 buttons with each option
-//set sttributes of 4 buttons
-//event.target button
-//if correct answer selected log  to score else minus 10 seconds from clock
+//function to render end page
+renderEndPage = () => {
+  questionsScreen.setAttribute("class", "hide");
+  endScreen.classList.remove("hide");
+};
 
-//and to log score
-//function to render feedback for interval of 3 seconds run within above functon
-//function to render end screen
-//function to log score to high
-//Useful comments element.style.display = "none" will hide
-//within a function event.currentTarget.setAttribute coupled with event.stop
-//setAttribute(class, visible)
-//use local storage to store name and score then get from local storage on high scores page
-questionNumber = 0;
-startButton.addEventListener("click", (event) => {
+//set question counter
+var questionNumber = 0;
+
+//function to render questions screen
+renderQuestionScreen = () => {
   setTime(time);
+
   //set attribute of start screen to hidden and questionns to visible
   startScreen.setAttribute("style", "display:none");
   questionsScreen.classList.remove("hide");
@@ -50,20 +51,33 @@ startButton.addEventListener("click", (event) => {
     choices.appendChild(btn);
     btn.setAttribute("data-option", [i]);
   }
-
+  //get array of all buttons on the page
   optionButtons = questionsScreen.querySelectorAll("button");
 
   questionsScreen.addEventListener("click", (event) => {
     var element = event.target;
     if (element.matches("button")) {
+      //IF THE QUESTION NUMBER IS LESS THAN QUESTIONS LENGTH
+      //IF THE DATA NUMBER = CORRECT ANSWER ADD TO SCORE COUNTER AND STORE TO LOCAL STORAGE
+      //SET MESSAGE TO CORRECT
       questionNumber += 1;
-      questionsScreen.firstElementChild.textContent =
-        questions[questionNumber].question;
-      for (i = 0; i < 4; i++) {
-        optionButtons[i].textContent = questions[questionNumber].choices[i];
+      if (questionNumber < questions.length) {
+        questionsScreen.firstElementChild.textContent =
+          questions[questionNumber].question;
+        for (i = 0; i < 4; i++) {
+          optionButtons[i].textContent = questions[questionNumber].choices[i];
+        }
+      }
+      //ELSE RUN THE FINAL PAGE
+      else {
+        renderEndPage();
       }
     }
   });
+};
+
+startButton.addEventListener("click", (event) => {
+  renderQuestionScreen();
 });
 
 //   }
