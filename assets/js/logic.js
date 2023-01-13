@@ -14,6 +14,7 @@ var clearFeedback;
 //initialise starting time for quiz here
 var time = 76;
 var scores = [];
+var timerInterval;
 
 //function to set timer on Questons Screen
 setTime = (i) =>
@@ -33,7 +34,7 @@ setTime = (i) =>
 renderEndPage = () => {
   questionsScreen.setAttribute("class", "hide");
   endScreen.classList.remove("hide");
-  finalScore.textContent = score;
+  finalScore.textContent = timeEl.textContent;
 };
 
 //function to render questions screen
@@ -99,6 +100,8 @@ renderQuestionScreen = () => {
       }
       //if end of questions reached then render the end page
       else {
+        //clear timer
+        clearInterval(timerInterval);
         renderEndPage();
         getScore();
         //clearFeedback() after delay of 3 seconds.
@@ -122,7 +125,10 @@ getScore = () => {
         //else continue to store the initials and score object (scoreRecord)
       } else {
         //set the value of scoreRecord object to below
-        scoreRecord = { initials: enterInitials.value, score: score };
+        scoreRecord = {
+          initials: enterInitials.value,
+          score: timeEl.textContent,
+        };
         //get the last stored scores from local storage
         var lastScoresStore = JSON.parse(localStorage.getItem("scores"));
         //if the score object exists then do the following
