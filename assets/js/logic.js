@@ -7,26 +7,24 @@ const feedback = document.querySelector("#feedback");
 const timeEl = document.querySelector("#time");
 const finalScore = document.querySelector("#final-score");
 const enterInitials = document.querySelector("#initials");
-
+//initialising all variables
 var questionNumber = 0;
 var score = 0;
 var clearFeedback;
-
-//set starting time interval here
+//initialise starting time for quiz here
 var time = 76;
 var scores = [];
-var lastScores = [];
-//function to set timer
+
+//function to set timer on Questons Screen
 setTime = (i) =>
   (timerInterval = setInterval(() => {
     time--;
     timeEl.textContent = time;
     //if time runs out or last question
-    if (time === 0 || questionNumber > 4) {
-      //render end page when timer reaches end
+    if (time === 70) {
+      //render end page when timer reaches end and get the score
       renderEndPage();
-
-      //Uh ohmessage you ran out of time
+      getScore();
       clearInterval(timerInterval);
     }
   }, 1000));
@@ -38,8 +36,6 @@ renderEndPage = () => {
   finalScore.textContent = score;
 };
 
-//set question counter
-
 //function to render questions screen
 renderQuestionScreen = () => {
   setTime(time);
@@ -50,7 +46,7 @@ renderQuestionScreen = () => {
 
   //set value of first question and options
   questionsScreen.firstElementChild.textContent = questions[0].question;
-
+  //for loop to create 4 buttons on the questions screen
   var btn;
   for (i = 0; i < 4; i++) {
     btn = document.createElement("button");
@@ -61,46 +57,51 @@ renderQuestionScreen = () => {
   }
   //get array of all buttons on the page
   optionButtons = questionsScreen.querySelectorAll("button");
-
+  //
   questionsScreen.addEventListener("click", (event) => {
-    //
-
     var element = event.target;
     if (element.matches("button")) {
       //clear timer for feedback
       clearTimeout(clearFeedback);
-      //IF THE DATA NUMBER = CORRECT ANSWER ADD TO SCORE COUNTER AND STORE TO LOCAL STORAGE
+      //if data number of clicked element id equeal to the correct answer then .....
       if (
         element.getAttribute("data-option") == questions[questionNumber].answer
       ) {
+        //set feedback to say Correct
         feedback.textContent = "Correct!";
+        //Unhide the feedback element by removing hide class
         feedback.classList.remove("hide");
+        //add 1 to the core counter
         score += 1;
+        //otherwise....
       } else {
+        //set the text content of feedback to incorrect
         feedback.textContent = "Incorrect!";
+        //Unhide  the feedback
         feedback.classList.remove("hide");
+        //removes 10 seconds from the timer for a wrong answer
+        time -= 10;
       }
-      console.log(`score is ${score}`);
-
-      //SET MESSAGE TO CORRECT
-      //renderFeedback
+      //add 1 to the question count
       questionNumber += 1;
+      //check if end of questions array has not been  reached
       if (questionNumber < questions.length) {
+        //update the questin text and button text
         questionsScreen.firstElementChild.textContent =
           questions[questionNumber].question;
         for (i = 0; i < 4; i++) {
           optionButtons[i].textContent = questions[questionNumber].choices[i];
         }
-        //clearFeedback() after delay
+        //clear the feedback for answer after a delay of seconds.
         clearFeedback = setTimeout(() => {
           feedback.setAttribute("class", "feedback hide");
         }, 3000);
       }
-      //ELSE RUN THE FINAL PAGE
+      //if end of questions reached then render the end page
       else {
         renderEndPage();
         getScore();
-        //clearFeedback() after delay
+        //clearFeedback() after delay of 3 seconds.
         clearFeedback = setTimeout(() => {
           feedback.setAttribute("class", "feedback hide");
         }, 3000);
@@ -108,38 +109,43 @@ renderQuestionScreen = () => {
     }
   });
 };
-//get user score and initials and store in local storage
-//if submit is clicked store user initials and
+//function to get score from end page and store it to local storage for highscores page
 getScore = () => {
+  //event listener for click on submit button
   endScreen.addEventListener("click", (event) => {
     var element = event.target;
-
+    // if the button is presses continue
     if (element.matches("button")) {
-      scoreRecord = { initials: enterInitials.value, score: score };
-      var lastScoresStore = JSON.parse(localStorage.getItem("scores"));
-      if (lastScoresStore !== null) {
-        lastScoresStore.push(scoreRecord);
-        localStorage.setItem("scores", JSON.stringify(lastScoresStore));
-        window.location.href = "./highscores.html";
+      //if the initials input field is blank alert user that it must have initials
+      if (enterInitials.value === "") {
+        alert("Please enter initials to continue");
+        //else continue to store the initials and score object (scoreRecord)
       } else {
-        scores.push(scoreRecord);
-        console.log(scores);
-        localStorage.setItem("scores", JSON.stringify(scores));
-        window.location.href = "./highscores.html";
+        //set the value of scoreRecord object to below
+        scoreRecord = { initials: enterInitials.value, score: score };
+        //get the last stored scores from local storage
+        var lastScoresStore = JSON.parse(localStorage.getItem("scores"));
+        //if the score object exists then do the following
+        if (lastScoresStore !== null) {
+          //push the score received from the end page within the scoreRecore object to the array from local storage
+          lastScoresStore.push(scoreRecord);
+          //reset the local storage to the updated array of scoreRecords
+          localStorage.setItem("scores", JSON.stringify(lastScoresStore));
+          //navigate away to the highscores page where the scores will be rendered to the screen
+          window.location.href = "./highscores.html";
+        } else {
+          //if this is the first time the user is attempting the quiz then
+          //add the score Record object to the scores array
+          scores.push(scoreRecord);
+          //add the scores array to local storage
+          localStorage.setItem("scores", JSON.stringify(scores));
+          //navigate to the highscores page
+          window.location.href = "./highscores.html";
+        }
       }
     }
   });
 };
-
-// if (element.matches("button")) {
-//   //get last saved scores list
-//   lastScores.push(scoreRecord);
-//   localStorage.setItem("scores", JSON.stringify(lastScores));
-//   window.location.href = "./highscores.html";
-// } else if (element.matches("button") && lastScores !== null) {
-//   localStorage.setItem("scores", JSON.stringify(scoreRecord));
-//   window.location.href = "./highscores.html";
-// }
 
 startButton.addEventListener("click", (event) => {
   renderQuestionScreen();
