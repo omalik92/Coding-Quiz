@@ -21,7 +21,7 @@ setTime = (i) =>
     time--;
     timeEl.textContent = time;
     //if time runs out or last question
-    if (time === 70) {
+    if (time === 0) {
       //render end page when timer reaches end and get the score
       renderEndPage();
       getScore();
